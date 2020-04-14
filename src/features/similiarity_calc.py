@@ -6,7 +6,7 @@ Created on Sat Apr 11 09:40:00 2020
 """
 
 from abc import ABC
-from sklearn.metrics.pairwise import cosine_similarity
+
 
 
 class SimilarityCalc(ABC):
@@ -34,17 +34,27 @@ class DirectSimilarity(SimilarityCalc):
                 for i in range(0,len(self.vectors) - 1)]
         #pass
     
-
+from sklearn.metrics.pairwise import cosine_similarity
 from scipy.ndimage.filters import maximum_filter,median_filter,convolve
 import numpy as np
+
+
 class similarity():
     @staticmethod
-    def calc_adjacent_matrix(vectors,method='cosine'):
+    def calc_adjacent_matrix(vectors,method='cosine',word2vec_model=None):
         adjacent_matrix = None
         
         if method == 'cosine':
             adjacent_matrix = cosine_similarity(vectors,vectors)
         
+        # make shure that vector method called for it is do_nothing
+        if method == 'wmdistance':
+            adjacent_matrix = np.ndarray(shape=(len(vectors),len(vectors)))
+            print(len(vectors))
+            print(adjacent_matrix.shape)
+            for i in range(adjacent_matrix.shape[0]):
+                for j in range(adjacent_matrix.shape[1]):
+                    adjacent_matrix[i][j] = word2vec_model.wmdistance(vectors[i],vectors[j])
         return adjacent_matrix
     
     @staticmethod

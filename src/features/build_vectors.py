@@ -59,16 +59,26 @@ class TFIDFCalculator(CalculateVectors):
 
 
 
+#word2vec_wiki_model = api.load('glove-wiki-gigaword-300')
+
+
 class vectorizer():
     @staticmethod
-    def calc(blocks,method='tfidf'):
+    def calc(blocks,method='tfidf',word2vec_model=None):
         con_blocks = [' '.join(blk) for blk in blocks]
         
         myvectorizer = None
         if method == 'tfidf':
             myvectorizer = TfidfVectorizer()
+            return myvectorizer.fit_transform(con_blocks).toarray()        
         
         if method == 'tf':
             myvectorizer = CountVectorizer()
+            return myvectorizer.fit_transform(con_blocks).toarray()        
         
-        return myvectorizer.fit_transform(con_blocks).toarray()
+        if method == 'do_nothing':
+            return con_blocks
+            
+        raise("No vector method %s was found " %(method))
+    
+    

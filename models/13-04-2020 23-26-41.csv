@@ -1,0 +1,6 @@
+,video_id,window_size,step_size,vector_method,similarity_method,is_min_thresh,algorithm,n_clusters,sim_thresh,sim_filter,accurrcy_shift
+0,2mC1uqwEmWQ,120,50,tfidf,cosine,TRUE,spectral_clustering,14,0.4,,15
+1,MkiUBJcgdUY,70,50,tfidf,cosine,TRUE,spectral_clustering,5,0.4,"['median',(2,2)]",15
+2,x5zLaWT5KPs,40,20,tfidf,cosine,TRUE,spectral_clustering,13,0.4,,15
+3,zWg7U0OEAoE,150,40,tf,cosine,TRUE,spectral_clustering,12,0.4,"['median',(5,5)]",15
+4,zWg7U0OEAoE,150,40,do_nothing,wmdistance,FALSE,spectral_clustering,12,5,,15
