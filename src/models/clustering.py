@@ -29,6 +29,7 @@ class TextTilingClustering():
             
             
 from sklearn.cluster import SpectralClustering            
+from sklearn.cluster import DBSCAN
 class clustering():
     '''
         compare the shifts of topic from our results compared to the ground base
@@ -114,12 +115,21 @@ class clustering():
             times[lb] = (start_time,end_time)
             
     @staticmethod
-    def run(adjacent_matrix,n_clusters,gap_timestamp,groundbase,algorithm='spectral_clustering',accurrcy_shift=15):
+    def run(adjacent_matrix,n_clusters,gap_timestamp,groundbase,\
+            algorithm='spectral_clustering',accurrcy_shift=15,clustering_params=None):
         clustering_results = None
+        is_algorithm_found = False
         if algorithm == 'spectral_clustering':
-            clustering_results = SpectralClustering(n_clusters=n_clusters).fit(adjacent_matrix)
-        else:
-            raise Exception('You should implement another clustering algorithm execution')
+            is_algorithm_found = True
+            #clustering_results = SpectralClustering(n_clusters=n_clusters).fit(adjacent_matrix)
+            clustering_results = SpectralClustering(n_clusters=n_clusters,affinity='precomputed').fit(adjacent_matrix)
+        if algorithm == 'dbscan':
+            is_algorithm_found = True
+            eps = clustering_params["eps"]
+            min_samples = clustering_params["min_samples"]
+            clustering_results = DBSCAN(eps=eps,min_samples=min_samples,metric="precomputed").fit(adjacent_matrix)
+        if is_algorithm_found is False:
+            raise Exception('Could not find an implemntation of the clustering algorithm %s- ' % (algorithm))
         
         #print ('This are the labels from the clustering result:')
         #print(clustering_results.labels_)
