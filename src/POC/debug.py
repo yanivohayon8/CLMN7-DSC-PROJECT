@@ -47,13 +47,28 @@ video_len = 1059
 window_size=40,step_size=20,similarity_method='cosine',is_min_thresh=True,sim_filter=['gaussian_laplace',1.4],\
 algorithm='dbscan',clustering_params={"eps":0.1,"min_samples":4},n_clusters=13,sim_thresh=None)'''
 
-pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='lda',\
+'''pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='lda',\
 window_size=40,step_size=20,similarity_method='jensen_shannon',is_min_thresh=True,\
 algorithm='spectral_clustering',n_clusters=13,sim_filter=['median',(2,2)],sim_thresh=0.4,\
-vectorizing_params={"alpha":1e-2,"eta":0.5e-2,'chunksize':100,'minimum_probability':0.0,'passes':2})
+vectorizing_params={"alpha":1e-2,"eta":0.5e-2,'chunksize':100,'minimum_probability':0.0,'passes':2})'''
 
 
 '''from src.visualization.visualize import MyPlotting
 import numpy as np
 
 MyPlotting.similarity_matrix(np.ones((50,50)))'''
+
+print(pipeline.run_for_baye(groundbase,transcripts,window_size=60,step_size=20,
+                      vector_method='tfidf',vectorizing_params=None,similarity_method='cosine',
+                      filter_params={"filter_type":'median',
+                                     "mask_shape":(2,2),
+                                     "sim_thresh":0.4,
+                                     "is_min_thresh":True
+                                     },
+                     clustering_params={
+                             'algorithm':'spectral_clustering',
+                             'n_clusters':13
+                             }))
+
+
+

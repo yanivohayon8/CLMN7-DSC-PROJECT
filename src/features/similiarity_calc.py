@@ -5,35 +5,6 @@ Created on Sat Apr 11 09:40:00 2020
 @author: yaniv
 """
 
-from abc import ABC
-
-
-
-class SimilarityCalc(ABC):
-    
-    vectors = NotImplemented
-    
-    def calc(self):
-        pass
-
-
-
-class DirectSimilarity(SimilarityCalc):
-    '''    
-        This class is used to calculate the direct similarity between 2 vectors
-    '''
-    
-    def __init__(self,vectors):
-        self.vectors = vectors
-        self.similarity_function = cosine_similarity# consider using other similarity function than cosine 
-        
-    # notice it is more valid of vectors like the text tiling looking for minima example
-    def calc(self):
-        return [self.similarity_function(self.vectors[i].reshape(1,-1),\
-                                         self.vectors[i+1].reshape(1,-1))[0][0]\
-                for i in range(0,len(self.vectors) - 1)]
-        #pass
-    
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.ndimage.filters import maximum_filter,median_filter,convolve,gaussian_laplace
 import numpy as np
@@ -80,3 +51,5 @@ class similarity():
             return gaussian_laplace(similarity_matrix,sigma=params[0])
         
         return None
+    
+    

@@ -13,6 +13,9 @@ from src.features.build_vectors import vectorizer
 from src.features.similiarity_calc import similarity
 from src.visualization.visualize import MyPlotting
 from src.models.clustering import clustering
+from src.features.sim_mat_filter import similarityFilters
+
+
 
 import numpy as np
 
@@ -150,8 +153,8 @@ class pipeline():#,myvectorizer
                 method_label = method_label + '_filter'
             
             '''Execute clustering'''
-            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,n_clusters,gap_timestamp,\
-                                                            groundbase,algorithm,accurrcy_shift,clustering_params)
+            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,gap_timestamp,\
+                                                            groundbase,clustering_params,accurrcy_shift)
         except Exception as inst:
             print(inst)
             failure_mess = inst
@@ -187,3 +190,49 @@ class pipeline():#,myvectorizer
         return df
 
 
+    @staticmethod
+    def run_for_baye(groundbase,transcripts,
+                     window_size=40,step_size=20,
+                     vector_method='tfidf',vectorizing_params=None, 
+                     similarity_method='cosine',
+                     filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
+                     clustering_params={'algorithm':'spectral_clustering','n_clusters':13},
+                     accurrcy_shift=15):
+        
+        '''Initializing parameters '''
+        w2v_model = None
+        recall,precision,tp,fp,fn = 0,0,0,0,0
+        
+        try:
+            ''' Segmenting transcripts'''
+            block_handler =  CreateBlocks(transcripts,window_size=window_size)
+            blocks = block_handler.partion_by_sliding_windows(window_size,step_size)
+            gap_timestamp = block_handler.get_block_gap_timestamp()        
+        
+                
+            ''' vectorizing the segment '''        
+            if 'word2vec' in vector_method:
+                w2v_model = word2vec_wiki_model            
+            vector_array = vectorizer.calc(blocks,vector_method,w2v_model,vectorizing_params)
+            
+            
+            ''' Calculate similarity'''        
+            if similarity_method == 'wmdistance':
+                w2v_model = word2vec_wiki_model        
+            similarity_matrix = similarity.calc_adjacent_matrix(vector_array,similarity_method,w2v_model)
+            
+            ''' Apply image filtering '''
+            similarity_matrix = similarityFilters.similarity_filter(similarity_matrix,filter_params)
+            
+            '''Execute clustering'''
+            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+                                                        gap_timestamp,
+                                                        groundbase,
+                                                        clustering_params,
+                                                        accurrcy_shift,
+                                                        )
+        except Exception as inst:
+            #print(inst)
+            return 0
+            
+        return precision

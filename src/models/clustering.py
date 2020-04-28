@@ -73,8 +73,8 @@ class clustering():
         false_negative = len(curresults) # make sure the true positive are removed from here 
         recall_rate = true_positive/(true_positive + false_negative )
         precision_rate = true_positive/(true_positive + false_positive)
-        print("TP: %s , FP: %s, FN: %s" %(true_positive,false_positive,false_negative))
-        print("precision rate : %s, recall rate : %s " % (precision_rate,recall_rate))
+        #print("TP: %s , FP: %s, FN: %s" %(true_positive,false_positive,false_negative))
+        #print("precision rate : %s, recall rate : %s " % (precision_rate,recall_rate))
         return (recall_rate,precision_rate,true_positive,false_positive,false_negative)
         
     '''
@@ -115,14 +115,15 @@ class clustering():
             times[lb] = (start_time,end_time)
             
     @staticmethod
-    def run(adjacent_matrix,n_clusters,gap_timestamp,groundbase,\
-            algorithm='spectral_clustering',accurrcy_shift=15,clustering_params=None):
+    def run(adjacent_matrix,gap_timestamp,groundbase,clustering_params,accurrcy_shift=15):
         clustering_results = None
         is_algorithm_found = False
+        algorithm = clustering_params['algorithm']
+        
         if algorithm == 'spectral_clustering':
             is_algorithm_found = True
             #clustering_results = SpectralClustering(n_clusters=n_clusters).fit(adjacent_matrix)
-            clustering_results = SpectralClustering(n_clusters=n_clusters,affinity='precomputed').fit(adjacent_matrix)
+            clustering_results = SpectralClustering(clustering_params['n_clusters'],affinity='precomputed').fit(adjacent_matrix)
         if algorithm == 'dbscan':
             is_algorithm_found = True
             eps = clustering_params["eps"]
