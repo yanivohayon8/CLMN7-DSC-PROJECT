@@ -67,22 +67,7 @@ class CreateBlocks:
             brth_grp_timestamp = []
             for w in range(len(self.tokenized_trgrp_corpus[brth_index])):
                 self.word_timestamp.append(round(brth['start'] + w * avg_delay,2))
-                
-        '''
-            Find the block sizes
-            
-            Need to fix the if section of the n_breath_group_union to work on the processed data
-        '''
-        '''if n_breath_group_union != -1:
-            self.block_sizes = [len(grp['text'].split(' ')) for grp in transcripts_jsons]
-            blk_sizes = []
-            if n_breath_group_union > 0:
-                for blk_index in range(1,len(self.block_sizes) - n_breath_group_union,\
-                                       n_breath_group_union):
-                      blk_sizes.append(sum(self.block_sizes[blk_index - 1:blk_index + n_breath_group_union]))
-                
-                self.block_sizes = blk_sizes
-        else:'''        
+                        
         
         self.window_size = window_size
         self.block_sizes = [window_size] * (int(len(self.tokenized_corpus) / window_size))
@@ -156,3 +141,26 @@ class CreateBlocks:
             succ_start = blk_timestamp[blk_index + 1][0]
             time_stamp.append((prev_end + succ_start)/2)
         return time_stamp
+    
+    def partion_by_timestamp(self,block_timestamps):
+        corpus_divided = []
+        indexes_diversion = []
+        ts_index = 0
+        word_index_pre = 0
+        word_index_next = 0
+        
+        for ts_index in range(len(block_timestamps)):
+            # get the next word index for the next timestamp
+            while self.word_timestamp[word_index_next] - block_timestamps[ts_index] <= 0 :
+                word_index_next+=1
+            corpus_divided.append(self.tokenized_corpus[word_index_pre:word_index_next])
+            indexes_diversion.append((word_index_pre,word_index_next))
+            word_index_pre = word_index_next + 1
+            pass
+       
+        # adding the rest
+        corpus_divided.append(self.tokenized_corpus[word_index_next:])
+        indexes_diversion.append((word_index_next,len(self.tokenized_corpus) - 1))
+        
+        self.word_ind_blocks = indexes_diversion    
+        return corpus_divided#,indexes_diversion     
