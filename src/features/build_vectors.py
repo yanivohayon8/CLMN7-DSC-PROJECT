@@ -130,11 +130,16 @@ class vectorizer():
             '''You need to train the LDA model you need to make here some loops and stabilizing params'''
             # low alpha means each document is only represented by a small number of topics, and vice versa
             # low eta means each topic is only represented by a small number of words, and vice versa
-            lda = gensim.models.ldamodel.LdaModel(corpus=corpus, num_topics=vectorizing_params['n_clusters'], id2word=id2word,
-               alpha=vectorizing_params['alpha'], eta=vectorizing_params['eta'],\
-               chunksize=vectorizing_params['chunksize'], \
-               minimum_probability=vectorizing_params['minimum_probability'],\
-               passes=vectorizing_params['passes'])
+            # https://www.kaggle.com/ktattan/lda-and-document-similarity
+            lda = gensim.models.ldamodel.LdaModel(corpus=corpus,
+                                                  num_topics=vectorizing_params['n_clusters'],
+                                                  id2word=id2word#,
+                                                  #alpha=vectorizing_params['alpha']#, # consider this to be auto
+                                                  #eta=vectorizing_params['eta'],
+                                                  #chunksize=vectorizing_params['chunksize'],
+                                                  #minimum_probability=vectorizing_params['minimum_probability'],
+                                                  #passes=vectorizing_params['passes']
+                                                  )
             
             return np.array([np.array([doc_dis[1] for doc_dis in lda.get_document_topics(bow=cp)]) for cp in corpus] )
             

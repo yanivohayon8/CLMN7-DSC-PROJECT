@@ -1,0 +1,2 @@
+{"target": 0.0, "params": {"n_clusters": 14.502132028215444, "sim_thresh": 0.5160973480326474, "step_size": 10.005718740867245, "window_size": 59.30323444213917}, "datetime": {"datetime": "2020-04-29 12:21:37", "elapsed": 0.0, "delta": 0.0}}
+{"target": 0.0, "params": {"n_clusters": 12.880535344902679, "sim_thresh": 0.32770157843063935, "step_size": 19.313010568883545, "window_size": 64.9228945155962}, "datetime": {"datetime": "2020-04-29 12:21:39", "elapsed": 1.997623, "delta": 1.997623}}

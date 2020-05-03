@@ -50,7 +50,6 @@ algorithm='dbscan',clustering_params={"eps":0.1,"min_samples":4},n_clusters=13,s
 '''pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='lda',\
 window_size=40,step_size=20,similarity_method='jensen_shannon',is_min_thresh=True,\
 algorithm='spectral_clustering',n_clusters=13,sim_filter=['median',(2,2)],sim_thresh=0.4,\
-vectorizing_params={"alpha":1e-2,"eta":0.5e-2,'chunksize':100,'minimum_probability':0.0,'passes':2})'''
 
 
 '''from src.visualization.visualize import MyPlotting
