@@ -1,0 +1,2 @@
+{"target": 0.0, "params": {"alpha": 0.005830196974978962, "n_clusters": 16.321946960652948, "sim_thresh": 0.30003431244520345, "step_size": 25.116628631591986, "window_size": 39.07826580622469}, "datetime": {"datetime": "2020-04-29 12:18:16", "elapsed": 0.0, "delta": 0.0}}
+{"target": 0.0, "params": {"alpha": 0.009076706390906792, "n_clusters": 13.117561268266025, "sim_thresh": 0.4036682181129143, "step_size": 29.838373711533496, "window_size": 90.0461754204364}, "datetime": {"datetime": "2020-04-29 12:18:18", "elapsed": 2.262975, "delta": 2.262975}}
