@@ -85,6 +85,11 @@ target/
 *.swp
 *.swo
 
+# audio file
+*.wav
+*.mp3
+*.mp4
+
 # Mypy cache
 .mypy_cache/
 
