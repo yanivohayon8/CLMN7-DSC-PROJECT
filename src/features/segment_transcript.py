@@ -17,6 +17,12 @@ from gensim.models.phrases import Phrases, Phraser
 
 from awlify import awlify
 import json
+import os
+
+import sys
+sys.path.append('..')
+
+from models.audio import getSubjSilentRanges
 
 class CreateBlocks:
     
@@ -46,7 +52,7 @@ class CreateBlocks:
     '''
         Divide the text - if window size is not specified, then the breath group remain as they are
     ''' 
-    def __init__(self,transcripts_jsons,window_size=20,n_breath_group_union=-1):
+    def __init__(self,transcripts_jsons,video_id="XXXXXX"):
 
         '''Find processed corpus'''
         #raw_data_tokenized = np.concatenate([brth['text'].split(' ') for brth in transcripts_jsons])
@@ -68,44 +74,37 @@ class CreateBlocks:
             for w in range(len(self.tokenized_trgrp_corpus[brth_index])):
                 self.word_timestamp.append(round(brth['start'] + w * avg_delay,2))
                         
-        
-        self.window_size = window_size
-        self.block_sizes = [window_size] * (int(len(self.tokenized_corpus) / window_size))
-        self.block_sizes.append(len(self.tokenized_corpus) % window_size)
             
-        if sum(self.block_sizes) != len(self.tokenized_corpus):
-            print("sum of block_sizes : %s , number of words %s" % (sum(self.block_sizes),len(self.tokenized_corpus)))
-            raise Exception("sum of block size is not as the number of words in the corpus")
-            
-        #print(self.block_sizes)
-        
         self.corpus_by_blocks = None
         self.word_ind_blocks = None
     '''
         partion to foregion groups
     '''
-    def partion(self):
+    '''def partion(self):
         return self.partion_by_sliding_windows(self.window_size,self.window_size)
-        '''corpus_divided = []
-        indexes_diversion = []
-        start_index = 1
+    '''
+    def partion(self,method="sliding_window",
+                window_size=40,step_size_sd=20,
+                silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None):
+        if method == 'sliding_window':
+            return self.partion_by_sliding_windows(window_size,step_size_sd)
         
-        for w_index in range(1,len(self.tokenized_corpus) - self.window_size,self.window_size):
-            start = start_index - 1
-            end = start + self.window_size
-            next_blk = self.tokenized_corpus[start:end]
-            indexes_diversion.append((start,end))
-            corpus_divided.append(next_blk)
-            start_index += self.window_size + 1
+        if method == 'audio':
+            return self.partion_by_audio(silence_threshold,slice_length,step_size_audio,wav_file_path)
         
-        # adding the remaining (modulu)
-        if start_index < len(self.tokenized_corpus) - 1:
-            corpus_divided.append(self.tokenized_corpus[start_index:])
-            indexes_diversion.append((start_index,len(self.tokenized_corpus) - 1))
+        return None
+    
+    
+    def partion_by_audio(self,silence_threshold,slice_length,step_size_audio,wav_file_path):
+        if os.path.isfile(wav_file_path) is False:
+            raise Exception('path %s was not found. (For more details +972-54378975893)' % (wav_file_path))
+        slices_seconds = getSubjSilentRanges(wav_file_path,silence_threshold,slice_length,step_size_audio)
         
-        self.word_ind_blocks = indexes_diversion    
-        return corpus_divided#,indexes_diversion'''
-        
+        # removing silence parts after transcripts ends
+        while slices_seconds[-1] > self.word_timestamp[-1]:
+            slices_seconds.pop(-1)
+            
+        return self.partion_by_timestamp(slices_seconds)
     
     '''This used to divide the text by a sliding window (unforegion groups)'''
     def partion_by_sliding_windows(self,window_size,step_size):

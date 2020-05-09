@@ -9,6 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from scipy.ndimage.filters import maximum_filter,median_filter,convolve,gaussian_laplace
 import numpy as np
 from scipy.stats import entropy
+from scipy.stats import kendalltau
 
 class similarity():
     
@@ -36,7 +37,15 @@ class similarity():
             for i in range(vectors.shape[0]):
                 for j in range(vectors.shape[0]):
                     adjacent_matrix[i][j] = similarity.shannon_distance(vectors[i],vectors[j])        
-                    
+        
+        if method == 'kendall_tau':
+            adjacent_matrix = np.empty(shape=(vectors.shape[0],vectors.shape[0]))            
+            for i in range(vectors.shape[0]):
+                for j in range(vectors.shape[0]):
+                    tau, _pvalue  = kendalltau(vectors[i],vectors[j])        
+                    adjacent_matrix[i][j] = tau
+            
+        
         return adjacent_matrix
     
     @staticmethod

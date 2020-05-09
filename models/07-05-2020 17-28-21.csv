@@ -1,0 +1,6 @@
+,video_id,window_size,step_size,vector_method,clustering_params,vectorizing_params,similarity_method,is_min_thresh,sim_thresh,sim_filter,accurrcy_shift,n_clusters
+0,MkiUBJcgdUY,40,20,doc2vec,"{ 'algorithm':'spectral_clustering','n_clusters':18}",,cosine,TRUE,0.4,,15,18
+1,MkiUBJcgdUY,100,20,doc2vec,"{ 'algorithm':'spectral_clustering','n_clusters':18}",,cosine,TRUE,0.4,,15,18
+2,MkiUBJcgdUY,50,10,doc2vec,"{ 'algorithm':'spectral_clustering','n_clusters':18}",,cosine,TRUE,0.4,,15,18
+3,MkiUBJcgdUY,20,20,doc2vec,"{ 'algorithm':'spectral_clustering','n_clusters':18}",,cosine,TRUE,0.4,,15,18
+4,MkiUBJcgdUY,40,40,doc2vec,"{ 'algorithm':'spectral_clustering','n_clusters':18}",,cosine,TRUE,0.4,,15,18

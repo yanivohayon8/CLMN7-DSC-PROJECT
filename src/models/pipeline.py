@@ -79,11 +79,12 @@ class pipeline():#,myvectorizer
     
     @staticmethod
     def run(df,groundbase,video_id,video_len,transcripts,\
+            slicing_method='sliding_window',window_size=40,step_size_sd=20,
+            silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
             figure_path=None,\
-            window_size=40,step_size=20,\
             vector_method='tfidf',vectorizing_params=None, 
             similarity_method='cosine',is_min_thresh=True,\
-            algorithm='spectral_clustering',n_clusters=4,clustering_params=None,\
+            clustering_params=None,\
             sim_thresh=None,sim_filter=None,accurrcy_shift=15):
         
         '''Initializing parameters '''
@@ -92,16 +93,19 @@ class pipeline():#,myvectorizer
         is_failed = False
         failure_mess = None
         if vectorizing_params is not None:
-            vectorizing_params['n_clusters'] = n_clusters
+            vectorizing_params['n_clusters'] = clustering_params['n_clusters']
         
         try:
             ''' Segmenting transcripts'''
-            block_handler =  CreateBlocks(transcripts,window_size=window_size)
-            blocks = block_handler.partion_by_sliding_windows(window_size,step_size)
+            block_handler =  CreateBlocks(transcripts)
+            blocks = block_handler.partion(method=slicing_method,
+                                           window_size=window_size,step_size_sd=step_size_sd,
+                                           silence_threshold=silence_threshold,slice_length=slice_length,
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path)
+
             gap_timestamp = block_handler.get_block_gap_timestamp()        
-            method_label = 'chunking'        
-            if window_size == step_size:
-                method_label = 'slidingwindow'
+            method_label = 'slidingwindow'
+                
                 
             ''' vectorizing the segment '''        
             if 'word2vec' in vector_method:
@@ -118,10 +122,11 @@ class pipeline():#,myvectorizer
             
             ''' Ploting similarity'''
             df_stats_similarity = pd.DataFrame(similarity_matrix.reshape(-1,1))
-            MyPlotting.print_stats(similarity_matrix,df_stats_similarity,\
+            '''MyPlotting.print_stats(similarity_matrix,df_stats_similarity,\
                                    'raw similarity matrix',figure_path=figure_path)
-            #MyPlotting.similarity_matrix(similarity_matrix,min_=_min,max_=_max,median_=_median,\
-            #                             title='raw similarity matrix',figure_path=figure_path)
+            MyPlotting.similarity_matrix(similarity_matrix,min_=_min,max_=_max,median_=_median,\
+                                         title='raw similarity matrix',figure_path=figure_path)'''
+            MyPlotting.similarity_matrix(similarity_matrix,title='raw similarity matrix',figure_path=figure_path)
             
             '''Applying threshold to the similarity matrix'''
             if sim_thresh is not None:
@@ -136,39 +141,43 @@ class pipeline():#,myvectorizer
 
             ''' Plotting similarity'''                
             df_stats_similarity = pd.DataFrame(similarity_matrix.reshape(-1,1))
-            MyPlotting.print_stats(similarity_matrix,df_stats_similarity,\
-                                   'similarity matrix after threshold',figure_path=figure_path)
-            #MyPlotting.similarity_matrix(similarity_matrix,'similarity matrix after threshold',figure_path)
+            '''MyPlotting.print_stats(similarity_matrix,df_stats_similarity,\
+                                   'similarity matrix after threshold',figure_path=figure_path)'''
+            MyPlotting.similarity_matrix(similarity_matrix,'similarity matrix after threshold',figure_path)
             
             '''Appplying filter on the similiry matrix'''
             if sim_filter is not None:
                 similarity_matrix = similarity.apply_filter(similarity_matrix,\
                                                             filter_type=sim_filter[0],params=sim_filter[1:])
-                df_stats_similarity = pd.DataFrame(similarity_matrix.reshape(-1,1))
+                
+                '''df_stats_similarity = pd.DataFrame(similarity_matrix.reshape(-1,1))
                 MyPlotting.print_stats(similarity_matrix,df_stats_similarity,\
                                    'similarity matrix after %s %s filter' %(sim_filter[0],sim_filter[1]),\
-                                   figure_path=figure_path)
+                                   figure_path=figure_path)'''
 
-                #MyPlotting.similarity_matrix(similarity_matrix,'similarity matrix after %s %s filter' %(sim_filter[0],sim_filter[1]),figure_path)    
+                MyPlotting.similarity_matrix(similarity_matrix,'similarity matrix after %s %s filter' %(sim_filter[0],sim_filter[1]),figure_path)    
                 method_label = method_label + '_filter'
             
             '''Execute clustering'''
-            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,gap_timestamp,\
-                                                            groundbase,clustering_params,accurrcy_shift)
+            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+                                                        gap_timestamp,
+                                                        groundbase,
+                                                        clustering_params,
+                                                        accurrcy_shift)
         except Exception as inst:
             print(inst)
             failure_mess = inst
             is_failed = True
             
-        method_label = method_label + '_' + algorithm
+        method_label = method_label + '_' + clustering_params['algorithm']
         
         df = df.append({'METHOD':\
                                 method_label,\
                                 'RECALL':recall,\
                                 'PRECISION':precision,\
                                 'BLOCKSIZE':window_size,\
-                                'STEPSIZE':step_size\
-                                ,'NUMOFCLUSTERSFORSC':n_clusters,\
+                                #'STEPSIZE':step_size_sd,\
+                                'NUMOFCLUSTERSFORSC':clustering_params['n_clusters'],\
                                 'THERSHOLD':sim_thresh,\
                                 'FILTER': str(sim_filter),\
                                'VIDEO':video_id,\
@@ -192,7 +201,8 @@ class pipeline():#,myvectorizer
 
     @staticmethod
     def run_for_baye(groundbase,transcripts,
-                     window_size=40,step_size=20,
+                     slicing_method='sliding_window',window_size=40,step_size_sd=20,
+                     silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
                      vector_method='tfidf',vectorizing_params=None, 
                      similarity_method='cosine',
                      filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
@@ -205,8 +215,11 @@ class pipeline():#,myvectorizer
         
         try:
             ''' Segmenting transcripts'''
-            block_handler =  CreateBlocks(transcripts,window_size=window_size)
-            blocks = block_handler.partion_by_sliding_windows(window_size,step_size)
+            block_handler =  CreateBlocks(transcripts)
+            blocks = block_handler.partion(method=slicing_method,
+                                           window_size=window_size,step_size_sd=step_size_sd,
+                                           silence_threshold=silence_threshold,slice_length=slice_length,
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path)
             gap_timestamp = block_handler.get_block_gap_timestamp()        
         
                 
@@ -229,10 +242,9 @@ class pipeline():#,myvectorizer
                                                         gap_timestamp,
                                                         groundbase,
                                                         clustering_params,
-                                                        accurrcy_shift,
-                                                        )
+                                                        accurrcy_shift)
         except Exception as inst:
-            #print(inst)
+            print(inst)
             return 0
             
         return precision

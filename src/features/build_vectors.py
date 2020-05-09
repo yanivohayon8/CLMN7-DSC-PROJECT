@@ -11,6 +11,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 
+from sklearn.metrics.pairwise import cosine_similarity
 import gensim.corpora as corpora
 import gensim
 
@@ -69,6 +70,26 @@ class vectorizer():
             con_blocks = [' '.join(blk) for blk in blocks]
             return con_blocks
         
+        if method == 'doc2vec':
+            '''MAKE THIS NOT HARD CODED'''
+            #model = gensim.models.doc2vec.Doc2Vec.load('../models/doc2vec/PL2B42F74062A70327')
+            model = gensim.models.doc2vec.Doc2Vec.load('../../models/doc2vec/PL2B42F74062A70327')
+            '''Calculate the cosine similarity between vectors - make a lot of noise see results from 07/05 '''
+            #return [model.infer_vector(blk) for blk in blocks]
+            
+            '''Ranking most similiar'''
+            ranks = []
+            for doc_id_1,blk_1 in enumerate(blocks):
+                inferred_vector = model.infer_vector(blk_1).reshape(1,-1)
+                blk_sim = [(doc_id_2,
+                            cosine_similarity(inferred_vector,
+                                              model.infer_vector(blk_2).reshape(1,-1))[0][0]
+                            ) \
+                              for doc_id_2,blk_2 in enumerate(blocks)]
+                blk_sim = sorted(blk_sim,key=lambda x:x[1])    
+                ranking = np.array([b_sim[0] for b_sim in blk_sim])
+                ranks.append(ranking)
+            return np.array(ranks)
         
         if method == 'lda':
             id2word = corpora.Dictionary(blocks)

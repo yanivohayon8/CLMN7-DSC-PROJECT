@@ -11,7 +11,7 @@ Created on Tue Mar 10 20:39:04 2020
 # pip install   beautifulsoup4,google
 from googlesearch import  search
 
-query = "America filetype:pdf"
+query = "Foundation of Scientific Computing filetype:pdf"
 
 my_results_list = []
 for i in search(query,        # The query you want to run
@@ -28,10 +28,14 @@ for i in search(query,        # The query you want to run
 from pathlib import Path
 import requests
 
-filename = Path("vika.pdf")
+
+for i,url in enumerate(my_results_list):
+    filename = Path('data/raw/pdf/Foundation of Scientific Computing/' + str(i) + '.pdf')    
+    response = requests.get(url)
+    filename.write_bytes(response.content)
+
+
 url = "https://www.state.gov/wp-content/uploads/2019/11/America-Crece-FAQs-003-508.pdf"
-response = requests.get(url)
-filename.write_bytes(response.content)
 
 # pip install youtube-search
 from youtube_search import YoutubeSearch
