@@ -23,6 +23,7 @@ import sys
 #sys.path.append('..')
 
 from src.models.audio import getSubjSilentRanges
+from data.collect_text_changes_time import get_time_titles_changed
 
 class CreateBlocks:
     
@@ -85,20 +86,37 @@ class CreateBlocks:
     '''
     def partion(self,method="sliding_window",
                 window_size=40,step_size_sd=20,
-                silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None):
+                silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
+                video_path=None,wanted_frequency=15,wanted_similarity_percent = 75):
         if method == 'sliding_window':
             return self.partion_by_sliding_windows(window_size,step_size_sd)
         
         if method == 'audio':
             return self.partion_by_audio(silence_threshold,slice_length,step_size_audio,wav_file_path)
         
+        if method == 'text_changing':
+            return self.partion_by_slides_text_changes(video_path, wanted_frequency, wanted_similarity_percent)
+        
         return None
     
-    
+    '''This function devides the video to chunks according to its silent parts'''
     def partion_by_audio(self,silence_threshold,slice_length,step_size_audio,wav_file_path):
         if os.path.isfile(wav_file_path) is False:
             raise Exception('path %s was not found. (For more details +972-54378975893)' % (wav_file_path))
         slices_seconds = getSubjSilentRanges(wav_file_path,silence_threshold,slice_length,step_size_audio)
+        
+        # removing silence parts after transcripts ends
+        while slices_seconds[-1] > self.word_timestamp[-1]:
+            slices_seconds.pop(-1)
+            
+        return self.partion_by_timestamp(slices_seconds)
+    
+    ''' This function devides the video to chunks according to text changes in the lecture slides of the video'''
+    def partion_by_slides_text_changes(self, video_path, wanted_frequency, wanted_similarity_percent):
+        if os.path.isfile(video_path) is False:
+            raise Exception('path %s was not found. (For more details +972-54378975893)' % (video_path))
+        slices_seconds = get_time_titles_changed(video_path = video_path, wanted_frequency = wanted_frequency ,
+                                                 change_threshold = wanted_similarity_percent)
         
         # removing silence parts after transcripts ends
         while slices_seconds[-1] > self.word_timestamp[-1]:
