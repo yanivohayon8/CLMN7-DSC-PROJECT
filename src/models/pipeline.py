@@ -203,7 +203,7 @@ class pipeline():#,myvectorizer
     def run_for_baye(groundbase,transcripts,
                      slicing_method='sliding_window',window_size=40,step_size_sd=20,
                      silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
-                     video_path=None,target_path=None,video_name='',wanted_frequency=15,wanted_similarity_percent = 75,
+                     video_path=None,wanted_frequency=15,wanted_similarity_percent = 75,
                      vector_method='tfidf',vectorizing_params=None, 
                      similarity_method='cosine',
                      filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
@@ -220,8 +220,8 @@ class pipeline():#,myvectorizer
             blocks = block_handler.partion(method=slicing_method,
                                            window_size=window_size,step_size_sd=step_size_sd,
                                            silence_threshold=silence_threshold,slice_length=slice_length,
-                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,                                                                                video_path=video_path,target_path=target_path,video_name=video_name,
-                                           wanted_frequency=wanted_frequency,wanted_similarity_percent = wanted_similarity_percent)
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,                                                                                video_path=video_path,wanted_frequency=wanted_frequency, 
+                                           wanted_similarity_percent = wanted_similarity_percent)
             gap_timestamp = block_handler.get_block_gap_timestamp()        
         
                 
