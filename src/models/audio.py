@@ -81,8 +81,8 @@ def getSubjSilentRanges(wav_file_path, silence_threshold, slice_length, step_siz
 		
 def downloadAudioFromYoutube(youtube_path):
     url_data = urlparse.urlparse(youtube_path)
-    query = urlparse.parse_qs(url_data.query)
-    video_id = query["v"][0]
+    #query = urlparse.parse_qs(url_data.query)
+    #video_id = query["v"][0]
     ydl_opts = {
 		'format': 'bestaudio/best',
 		'postprocessors': [{
@@ -92,8 +92,8 @@ def downloadAudioFromYoutube(youtube_path):
 			#'outtmpl': './../../data/raw/audio/%(video_id)s.%(ext)s',
             
 		}],
-        #'outtmpl': './../data/raw/audio/%(id)s.%(ext)s' 
-        'outtmpl': './../../data/raw/audio/%(id)s.%(ext)s' 
+        'outtmpl': './../data/raw/audio/%(id)s.%(ext)s' 
+        #'outtmpl': './../../data/raw/audio/%(id)s.%(ext)s' 
 	}
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:

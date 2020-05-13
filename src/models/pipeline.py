@@ -45,7 +45,9 @@ import pandas as pd
 word2vec_wiki_model.save_word2vec_format('C:\\Users\\yaniv\\Desktop\\gensim\\glove.6B.50d_word2vec.bin',binary=True)
 last answer : https://stackoverflow.com/questions/42986405/how-to-speed-up-gensim-word2vec-model-load-time 
 '''
-word2vec_wiki_model = KeyedVectors.load('C:\\Users\\yaniv\\Desktop\\gensim\\glove.6B.50d_word2vec_test.bin',mmap='r')
+
+# use this line
+#word2vec_wiki_model = KeyedVectors.load('C:\\Users\\yaniv\\Desktop\\gensim\\glove.6B.50d_word2vec_test.bin',mmap='r')
 
 class pipeline():#,myvectorizer
     
@@ -244,7 +246,7 @@ class pipeline():#,myvectorizer
                                                         clustering_params,
                                                         accurrcy_shift)
         except Exception as inst:
-            print(inst)
+            #print(inst)
             return 0
             
         return precision

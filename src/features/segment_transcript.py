@@ -20,9 +20,9 @@ import json
 import os
 
 import sys
-sys.path.append('..')
+#sys.path.append('..')
 
-from models.audio import getSubjSilentRanges
+from src.models.audio import getSubjSilentRanges
 
 class CreateBlocks:
     
