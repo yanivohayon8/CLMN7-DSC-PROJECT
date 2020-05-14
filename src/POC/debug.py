@@ -138,6 +138,7 @@ clustering_params={"algorithm":'spectral_clustering',"n_clusters":13},sim_filter
              clustering_params={"algorithm":'spectral_clustering',"n_clusters":13},
              sim_filter=None,sim_thresh=0.4)'''
 
+'''
 video_url = "https://www.youtube.com/watch?v=" + video_id
 youtube = YouTube(video_url)
 os.mkdir('../../data/raw/videos/' + video_id)
@@ -154,3 +155,22 @@ pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
              #vectorizing_params= {'n_clusters':14},
              clustering_params={"algorithm":'spectral_clustering',"n_clusters":14},
              sim_filter=None,sim_thresh=0.4)
+
+'''
+
+
+print(pipeline.run_for_baye(groundbase,transcripts,slicing_method='sliding_window',
+                      window_size=40,step_size_sd=20,
+                      #silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path="../../data/raw/audio/Mod-01 Lec-01 Foundation of Scientific Computing-01.wav",                
+                      vector_method='tfidf',vectorizing_params=None,
+                      similarity_method='cosine',
+                      filter_params={"filter_type":'median',
+                                     "mask_shape":(2,2),
+                                     "sim_thresh":0.4,
+                                     "is_min_thresh":True
+                                     },
+                     clustering_params={
+                             'algorithm':'spectral_clustering',
+                             'n_clusters':13
+                             },return_value='division'))
+pass

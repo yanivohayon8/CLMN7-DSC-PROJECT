@@ -164,7 +164,8 @@ class pipeline():#,myvectorizer
                 method_label = method_label + '_filter'
             
             '''Execute clustering'''
-            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+            results = None
+            block_labels,results,recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
                                                         gap_timestamp,
                                                         groundbase,
                                                         clustering_params,
@@ -213,7 +214,7 @@ class pipeline():#,myvectorizer
                      similarity_method='cosine',
                      filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
                      clustering_params={'algorithm':'spectral_clustering','n_clusters':13},
-                     accurrcy_shift=15):
+                     accurrcy_shift=15,return_value='precision'):
         
         '''Initializing parameters '''
         w2v_model = None
@@ -246,13 +247,40 @@ class pipeline():#,myvectorizer
             similarity_matrix = similarityFilters.similarity_filter(similarity_matrix,filter_params)
             
             '''Execute clustering'''
-            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+            time_dividing_results = None
+            block_labels = None
+            block_labels,time_dividing_results,recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
                                                         gap_timestamp,
                                                         groundbase,
                                                         clustering_params,
                                                         accurrcy_shift)
         except Exception as inst:
             #print(inst)
+            if return_value == 'division':
+                return None
             return 0
             
+        if return_value == 'division':
+            '''block_as_topics = []
+            i=0
+            while i < len(block_labels) -1:
+                curr_topic = []
+                while block_labels[i] == block_labels[i+1] and i < len(block_labels) - 1:
+                    curr_topic = curr_topic + list(blocks[i])
+                    #curr_topic.append(blocks[i])
+                    i +=1
+                #block_as_topics.append(list(np.concatenate(curr_topic)))
+                block_as_topics.append(curr_topic)
+                i+=1
+            
+            #dealing with last one
+            if block_labels[-1] == block_labels[-2]:
+                block_as_topics[-1] = block_as_topics[-1] +  list(blocks[-1])
+            else:
+                block_as_topics.append(list(blocks[-1]))
+                '''
+            block_as_topics = block_handler.partion_by_timestamp(time_dividing_results)
+            block_as_topics = [list(blk) for blk in block_as_topics]
+            return time_dividing_results,block_as_topics
+        
         return precision
