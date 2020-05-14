@@ -11,7 +11,8 @@ sys.path.append('../../')
 import json
 from src.models.pipeline import pipeline
 import ast
-
+import os
+from pytube import YouTube
 import pandas as pd      
 groundbase = [22,87,207,270,319,370,450,558,602,671,756,930,978,1011]
 
@@ -23,6 +24,13 @@ with open('../../data/raw/groundbase/transcripts/' + video_id +'.json',encoding=
 df = pd.DataFrame() #pd.read_csv('../../reports/csv/TextTiling_Freq_Vectors.csv')
 
 video_len = 1059
+
+
+
+
+
+
+
 
 #print("yaniv")
 
@@ -119,7 +127,7 @@ clustering_params={"algorithm":'spectral_clustering',"n_clusters":13},sim_filter
 #from src.models import audio
 #audio.downloadAudioFromYoutube('https://www.youtube.com/watch?v=' + video_id)
 
-pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
+'''pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
              figure_path='../../data/processed/mannul test',
              #slicing_method='sliding_window',
              #window_size=120,step_size_sd=20,
@@ -128,4 +136,21 @@ pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
              similarity_method='cosine',is_min_thresh=True,
              #vectorizing_params= {'n_clusters':14},
              clustering_params={"algorithm":'spectral_clustering',"n_clusters":13},
+             sim_filter=None,sim_thresh=0.4)'''
+
+video_url = "https://www.youtube.com/watch?v=" + video_id
+youtube = YouTube(video_url)
+os.mkdir('../../data/raw/videos/' + video_id)
+youtube.streams.first().download('../../data/raw/videos',filename=video_id)
+
+pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
+             figure_path='../../data/processed/handtuning/mannul test',
+             #slicing_method='sliding_window',
+             #window_size=120,step_size_sd=20,
+             slicing_method='text_changing',
+             #silence_threshold=-43,slice_length=1000,step_size_audio=100,wav_file_path="../../data/raw/audio/" + video_id + ".wav",
+              wanted_frequency=30, change_threshold=75,
+             similarity_method='cosine',is_min_thresh=True,
+             #vectorizing_params= {'n_clusters':14},
+             clustering_params={"algorithm":'spectral_clustering',"n_clusters":14},
              sim_filter=None,sim_thresh=0.4)

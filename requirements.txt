@@ -13,3 +13,4 @@ ffprobe
 pydub
 pygame
 youtube-dl
+fuzzywuzzy
