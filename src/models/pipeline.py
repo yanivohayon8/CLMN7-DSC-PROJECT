@@ -255,7 +255,7 @@ class pipeline():#,myvectorizer
                                                         clustering_params,
                                                         accurrcy_shift)
         except Exception as inst:
-            #print(inst)
+            print(inst)
             if return_value == 'division':
                 return None
             return 0

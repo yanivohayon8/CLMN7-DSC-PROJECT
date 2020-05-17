@@ -23,7 +23,7 @@ import sys
 #sys.path.append('..')
 
 from src.models.audio import getSubjSilentRanges
-from data.collect_text_changes_time import get_time_titles_changed
+#from data.collect_text_changes_time import get_time_titles_changed
 
 class CreateBlocks:
     

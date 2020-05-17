@@ -16,7 +16,7 @@ from pytube import YouTube
 import pandas as pd      
 groundbase = [22,87,207,270,319,370,450,558,602,671,756,930,978,1011]
 
-video_id = 'x5zLaWT5KPs'
+video_id = '2mC1uqwEmWQ'
 with open('../../data/raw/groundbase/transcripts/' + video_id +'.json',encoding="utf8") as f:
     transcripts = ast.literal_eval(f.read())
 
@@ -159,7 +159,7 @@ pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
 '''
 
 
-print(pipeline.run_for_baye(groundbase,transcripts,slicing_method='sliding_window',
+'''print(pipeline.run_for_baye(groundbase,transcripts,slicing_method='sliding_window',
                       window_size=40,step_size_sd=20,
                       #silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path="../../data/raw/audio/Mod-01 Lec-01 Foundation of Scientific Computing-01.wav",                
                       vector_method='tfidf',vectorizing_params=None,
@@ -173,4 +173,29 @@ print(pipeline.run_for_baye(groundbase,transcripts,slicing_method='sliding_windo
                              'algorithm':'spectral_clustering',
                              'n_clusters':13
                              },return_value='division'))
-pass
+pass'''
+
+params = {'n_clusters': 18, 'sim_thresh': 0.6, 'step_size': 49, 'window_size': 150}#{'n_clusters': 18, 'sim_thresh': 0.9, 'window_size': 60, 'step_size': 20}
+workflow = 'sliding_window-tfidf-cosine-median_(3,3)-spectral_clustering'
+
+
+
+
+#groundbase = df_videos.loc[df_videos['video id'] == vid,'topic shifts(ends)'].values.tolist()[:-1]
+#transcripts = transcripts_jsons[vid]
+
+
+pipeline.run_for_baye(groundbase,transcripts,slicing_method='sliding_window',
+                      window_size=params['window_size'],step_size_sd=params['step_size'],
+                      #silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path="../../data/raw/audio/Mod-01 Lec-01 Foundation of Scientific Computing-01.wav",                
+                      vector_method='tfidf',vectorizing_params=None,
+                      similarity_method='cosine',
+                      filter_params={"filter_type":'median',
+                                     "mask_shape":(3,3),
+                                     "sim_thresh":params['sim_thresh'],
+                                     "is_min_thresh":True
+                                     },
+                     clustering_params={
+                             'algorithm':'spectral_clustering',
+                             'n_clusters':params['n_clusters']
+                             },return_value='division')
