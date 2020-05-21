@@ -50,7 +50,7 @@ class MyPlotting():
         
         axs[1] = sns.heatmap(
         mydata, 
-        vmin=0, vmax=1, center=0.5,
+        vmin=min_, vmax=max_, center=center,
         cmap=sns.diverging_palette(20, 220, n=200),
         square=True
         )

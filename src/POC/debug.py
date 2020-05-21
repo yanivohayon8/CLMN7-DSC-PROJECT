@@ -16,7 +16,7 @@ from pytube import YouTube
 import pandas as pd      
 groundbase = [22,87,207,270,319,370,450,558,602,671,756,930,978,1011]
 
-video_id = '2mC1uqwEmWQ'
+video_id = '8BeXwhljq2g' #2mC1uqwEmWQ'
 with open('../../data/raw/groundbase/transcripts/' + video_id +'.json',encoding="utf8") as f:
     transcripts = ast.literal_eval(f.read())
 
@@ -175,7 +175,10 @@ pipeline.run(df,groundbase,video_id,video_len,transcripts,vector_method='tfidf',
                              },return_value='division'))
 pass'''
 
-params = {'n_clusters': 18, 'sim_thresh': 0.6, 'step_size': 49, 'window_size': 150}#{'n_clusters': 18, 'sim_thresh': 0.9, 'window_size': 60, 'step_size': 20}
+
+
+#params = {'n_clusters': 18, 'sim_thresh': 0.6, 'step_size': 49, 'window_size': 150}#{'n_clusters': 18, 'sim_thresh': 0.9, 'window_size': 60, 'step_size': 20}
+params = {'n_clusters': 18, 'sim_thresh': 0.9, 'step_size': 60, 'window_size': 200}
 workflow = 'sliding_window-tfidf-cosine-median_(3,3)-spectral_clustering'
 
 
