@@ -47,8 +47,8 @@ def get_chapters_titles(pdf_text_raw):
     p = re.compile(r'([\n]{2,2}(\d\.)+\d* [A-Za-z0-9? ]+[\n]{1,2})')
     all_iter = p.finditer(pdf_text_raw)
     titles = p.findall(pdf_text_raw)
-    titles_clean = [re.sub(r'(\d\.)+\d*', '', str(tl[0])) for tl in titles]#[re.sub('\W+','', tl) for tl in titles]
-    titles_clean = [re.sub('\\n', '', str(tl)) for tl in titles_clean]
+    titles_clean = titles#[re.sub(r'(\d\.)+\d*', '', str(tl[0])) for tl in titles]#[re.sub('\W+','', tl) for tl in titles]
+    titles_clean = [re.sub('\\n', '', str(tl[0])) for tl in titles_clean]
     indexes = [m.span() for m in all_iter]
     return titles_clean,indexes
     #return titles,indexes
