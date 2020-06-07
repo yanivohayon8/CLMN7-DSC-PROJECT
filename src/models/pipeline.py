@@ -45,8 +45,6 @@ import pandas as pd
 word2vec_wiki_model.save_word2vec_format('C:\\Users\\yaniv\\Desktop\\gensim\\glove.6B.50d_word2vec.bin',binary=True)
 last answer : https://stackoverflow.com/questions/42986405/how-to-speed-up-gensim-word2vec-model-load-time 
 '''
-
-# use this line
 #word2vec_wiki_model = KeyedVectors.load('C:\\Users\\yaniv\\Desktop\\gensim\\glove.6B.50d_word2vec_test.bin',mmap='r')
 
 class pipeline():#,myvectorizer
@@ -83,7 +81,6 @@ class pipeline():#,myvectorizer
     def run(df,groundbase,video_id,video_len,transcripts,\
             slicing_method='sliding_window',window_size=40,step_size_sd=20,
             silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
-            video_path=None,wanted_frequency=15,wanted_similarity_percent = 75,
             figure_path=None,\
             vector_method='tfidf',vectorizing_params=None, 
             similarity_method='cosine',is_min_thresh=True,\
@@ -104,9 +101,7 @@ class pipeline():#,myvectorizer
             blocks = block_handler.partion(method=slicing_method,
                                            window_size=window_size,step_size_sd=step_size_sd,
                                            silence_threshold=silence_threshold,slice_length=slice_length,
-                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,
-                                           video_path=video_path,wanted_frequency=wanted_frequency,
-                                           wanted_similarity_percent = wanted_similarity_percent)
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path)
 
             gap_timestamp = block_handler.get_block_gap_timestamp()        
             method_label = 'slidingwindow'
@@ -164,8 +159,7 @@ class pipeline():#,myvectorizer
                 method_label = method_label + '_filter'
             
             '''Execute clustering'''
-            results = None
-            block_labels,results,recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
                                                         gap_timestamp,
                                                         groundbase,
                                                         clustering_params,
@@ -214,7 +208,7 @@ class pipeline():#,myvectorizer
                      similarity_method='cosine',
                      filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
                      clustering_params={'algorithm':'spectral_clustering','n_clusters':13},
-                     accurrcy_shift=15,return_value='precision'):
+                     accurrcy_shift=15):
         
         '''Initializing parameters '''
         w2v_model = None
@@ -226,8 +220,7 @@ class pipeline():#,myvectorizer
             blocks = block_handler.partion(method=slicing_method,
                                            window_size=window_size,step_size_sd=step_size_sd,
                                            silence_threshold=silence_threshold,slice_length=slice_length,
-                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,
-                                           video_path = video_path,wanted_frequency = wanted_frequency,
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,                                                                                video_path=video_path,wanted_frequency=wanted_frequency, 
                                            wanted_similarity_percent = wanted_similarity_percent)
             gap_timestamp = block_handler.get_block_gap_timestamp()        
         
@@ -247,40 +240,65 @@ class pipeline():#,myvectorizer
             similarity_matrix = similarityFilters.similarity_filter(similarity_matrix,filter_params)
             
             '''Execute clustering'''
-            time_dividing_results = None
-            block_labels = None
-            block_labels,time_dividing_results,recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
+            recall,precision,tp,fp,fn  = clustering.run(similarity_matrix,
                                                         gap_timestamp,
                                                         groundbase,
                                                         clustering_params,
                                                         accurrcy_shift)
         except Exception as inst:
             print(inst)
-            if return_value == 'division':
-                return None
             return 0
             
-        if return_value == 'division':
-            '''block_as_topics = []
-            i=0
-            while i < len(block_labels) -1:
-                curr_topic = []
-                while block_labels[i] == block_labels[i+1] and i < len(block_labels) - 1:
-                    curr_topic = curr_topic + list(blocks[i])
-                    #curr_topic.append(blocks[i])
-                    i +=1
-                #block_as_topics.append(list(np.concatenate(curr_topic)))
-                block_as_topics.append(curr_topic)
-                i+=1
-            
-            #dealing with last one
-            if block_labels[-1] == block_labels[-2]:
-                block_as_topics[-1] = block_as_topics[-1] +  list(blocks[-1])
-            else:
-                block_as_topics.append(list(blocks[-1]))
-                '''
-            block_as_topics = block_handler.partion_by_timestamp(time_dividing_results)
-            block_as_topics = [list(blk) for blk in block_as_topics]
-            return time_dividing_results,block_as_topics
-        
         return precision
+    
+    @staticmethod
+    def run_classification(transcripts,
+                     slicing_method='sliding_window',window_size=40,step_size_sd=20,
+                     silence_threshold=-30,slice_length=1000,step_size_audio=10,wav_file_path=None,
+                     video_path=None,wanted_frequency=15,wanted_similarity_percent = 75,
+                     vector_method='tfidf',vectorizing_params=None, 
+                     similarity_method='cosine',
+                     filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
+                     clustering_params={'algorithm':'spectral_clustering','n_clusters':13},
+                     accurrcy_shift=15):
+        
+        '''Initializing parameters '''
+        w2v_model = None
+        recall,precision,tp,fp,fn = 0,0,0,0,0
+        
+        try:
+            ''' Segmenting transcripts'''
+            block_handler =  CreateBlocks(transcripts)
+            blocks = block_handler.partion(method=slicing_method,
+                                           window_size=window_size,step_size_sd=step_size_sd,
+                                           silence_threshold=silence_threshold,slice_length=slice_length,
+                                           step_size_audio=step_size_audio,wav_file_path=wav_file_path,                                                                                video_path=video_path,wanted_frequency=wanted_frequency, 
+                                           wanted_similarity_percent = wanted_similarity_percent)
+            gap_timestamp = block_handler.get_block_gap_timestamp()        
+        
+                
+            ''' vectorizing the segment '''        
+            if 'word2vec' in vector_method:
+                w2v_model = word2vec_wiki_model            
+            vector_array = vectorizer.calc(blocks,vector_method,w2v_model,vectorizing_params)
+            
+            
+            ''' Calculate similarity'''        
+            if similarity_method == 'wmdistance':
+                w2v_model = word2vec_wiki_model        
+            similarity_matrix = similarity.calc_adjacent_matrix(vector_array,similarity_method,w2v_model)
+            
+            ''' Apply image filtering '''
+            similarity_matrix = similarityFilters.similarity_filter(similarity_matrix,filter_params)
+            
+            '''Execute clustering'''
+            myresults = clustering.run_for_classification(similarity_matrix,
+                                                        gap_timestamp,
+                                                        clustering_params)
+            print(myresults)
+        except Exception as inst:
+            print(inst)
+            return 0
+            
+        return myresults
+    

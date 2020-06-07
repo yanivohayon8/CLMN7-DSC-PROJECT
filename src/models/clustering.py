@@ -138,4 +138,27 @@ class clustering():
         myresults = clustering.boundery_change(clustering_results.labels_,gap_timestamp)
         recall,precision,tp,fp,fn = clustering.boundryevaluation(myresults,groundbase,accurrcy_shift)
         return clustering_results.labels_,myresults,recall,precision,tp,fp,fn 
+    
+    def run_for_classification(adjacent_matrix,gap_timestamp,clustering_params):
+        clustering_results = None
+        is_algorithm_found = False
+        algorithm = clustering_params['algorithm']
+        
+        if algorithm == 'spectral_clustering':
+            is_algorithm_found = True
+            #clustering_results = SpectralClustering(n_clusters=n_clusters).fit(adjacent_matrix)
+            clustering_results = SpectralClustering(clustering_params['n_clusters'],affinity='precomputed').fit(adjacent_matrix)
+        if algorithm == 'dbscan':
+            is_algorithm_found = True
+            eps = clustering_params["eps"]
+            min_samples = clustering_params["min_samples"]
+            clustering_results = DBSCAN(eps=eps,min_samples=min_samples,metric="precomputed").fit(adjacent_matrix)
+        if is_algorithm_found is False:
+            raise Exception('Could not find an implemntation of the clustering algorithm %s- ' % (algorithm))
+        
+        #print ('This are the labels from the clustering result:')
+        #print(clustering_results.labels_)
+        
+        myresults = clustering.boundery_change(clustering_results.labels_,gap_timestamp)
+        return clustering_results.labels_,myresults
         
