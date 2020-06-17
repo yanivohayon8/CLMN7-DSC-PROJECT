@@ -220,6 +220,11 @@ class pipeline():#,myvectorizer
         w2v_model = None
         recall,precision,tp,fp,fn = 0,0,0,0,0
         
+        
+        # debug 
+        #print("window_size %s step_size_sd %s vectorizing_params %s \
+        #      filter_params %s clustering_params %s accurrcy_shift %s" %(window_size,step_size_sd,vectorizing_params,filter_params,clustering_params,accurrcy_shift) )
+        
         try:
             ''' Segmenting transcripts'''
             block_handler =  CreateBlocks(transcripts)
@@ -243,8 +248,12 @@ class pipeline():#,myvectorizer
                 w2v_model = word2vec_wiki_model        
             similarity_matrix = similarity.calc_adjacent_matrix(vector_array,similarity_method,w2v_model)
             
+            #MyPlotting.similarity_matrix(similarity_matrix,title='raw similarity matrix')
+            
             ''' Apply image filtering '''
             similarity_matrix = similarityFilters.similarity_filter(similarity_matrix,filter_params)
+            
+            #MyPlotting.similarity_matrix(similarity_matrix,title='filtered similarity matrix')
             
             '''Execute clustering'''
             time_dividing_results = None
@@ -254,6 +263,7 @@ class pipeline():#,myvectorizer
                                                         groundbase,
                                                         clustering_params,
                                                         accurrcy_shift)
+            #print('time_dividing_results %s ' %(time_dividing_results))
         except Exception as inst:
             print(inst)
             if return_value == 'division':

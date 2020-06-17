@@ -43,6 +43,7 @@ class clustering():
         true_positive = 0
         false_negative = 0
         false_positive = 0 
+        algo_results = curresults[:]
         
         #print("The results:")
         #print(curresults)
@@ -55,12 +56,12 @@ class clustering():
         
         for grb in ground_base:
             is_false_positive = True
-            for res in curresults:
+            for res in algo_results:
                 if abs(res - grb) < accurrcy_shift:
                     is_false_positive = False
                     true_positive_list_debug.append(res)
                     true_positive+=1
-                    curresults.remove(res)
+                    algo_results.remove(res)
                     break   
             if is_false_positive:
                 false_positive_list_debug.append(grb)
@@ -70,7 +71,7 @@ class clustering():
         #print("FP: " + str(false_positive_list_debug))
         #print("FN: " + str(curresults))
         
-        false_negative = len(curresults) # make sure the true positive are removed from here 
+        false_negative = len(algo_results) # make sure the true positive are removed from here 
         recall_rate = true_positive/(true_positive + false_negative )
         precision_rate = true_positive/(true_positive + false_positive)
         #print("TP: %s , FP: %s, FN: %s" %(true_positive,false_positive,false_negative))

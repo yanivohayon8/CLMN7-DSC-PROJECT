@@ -5,7 +5,7 @@ Created on Thu Apr 16 23:06:01 2020
 @author: yaniv
 """
 
-import sys
+'''import sys
 sys.path.append('../../')
 
 import json
@@ -23,7 +23,7 @@ with open('../../data/raw/groundbase/transcripts/' + video_id +'.json',encoding=
 
 df = pd.DataFrame() #pd.read_csv('../../reports/csv/TextTiling_Freq_Vectors.csv')
 
-video_len = 1059
+video_len = 1059'''
 
 
 
@@ -178,8 +178,8 @@ pass'''
 
 
 #params = {'n_clusters': 18, 'sim_thresh': 0.6, 'step_size': 49, 'window_size': 150}#{'n_clusters': 18, 'sim_thresh': 0.9, 'window_size': 60, 'step_size': 20}
-params = {'n_clusters': 18, 'sim_thresh': 0.9, 'step_size': 60, 'window_size': 200}
-workflow = 'sliding_window-tfidf-cosine-median_(3,3)-spectral_clustering'
+#params = {'n_clusters': 18, 'sim_thresh': 0.9, 'step_size': 60, 'window_size': 200}
+#workflow = 'sliding_window-tfidf-cosine-median_(3,3)-spectral_clustering'
 
 
 
