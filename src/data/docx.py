@@ -12,6 +12,10 @@ from gensim.utils import simple_preprocess
 import spacy
 from functools import reduce
 
+from gensim.models.phrases import Phrases, Phraser
+from gensim import corpora
+from numpy import setdiff1d
+
 
 stop_words = stopwords.words('english')
 nlp = spacy.load('en',disable=['parser','ner'])
@@ -38,27 +42,87 @@ def read_docx(doc_path):
 def process_docx(total_corpus):
     total_corpus_tokenized =[]
 
-    for chapter_corpus in total_corpus:
-        start_index = 0
-        documents = []
-        for m in re.finditer('[a-zA-Z]\.',chapter_corpus):
-            chapter_tokenized_doc = chapter_corpus[start_index:m.start(0) + 1]
-            
-            # debug 
-            #if len(chapter_tokenized_doc) == 0:
-            #    print("my debug")
-            
-            doc_text_no_punc = simple_preprocess(chapter_tokenized_doc,deacc=True) 
+    documents = []
+    document_chapters_indexes = []
+    for chapter_index,chapter_corpus in enumerate(total_corpus):
+
+        
+        sentences = list(filter(lambda x: len(x) > 0,chapter_corpus.split('.')))
+        for sent in sentences:
+            doc_text_no_punc = simple_preprocess(sent,deacc=True) 
             tokenized_text_non_stop_words = [ word for word in doc_text_no_punc \
                                              if word not in stop_words]
+                    
             text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
             tokenized_lemmas = nlp(text_non_stop_words)
             tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
                                 if token.pos_ in allowed_postags]
             documents.append(tokenized_lemmas)
-            start_index = m.end(0) + 1
-        total_corpus_tokenized.append(documents)
-    total_corpus_tokenized = [ [doc for doc in ch if len(doc) > 0 ] for ch in total_corpus_tokenized]
+            document_chapters_indexes.append(chapter_index)
+            
+        
+        
+        ### if we are looking for sentences ending and we do care of words like fig. 14.
+        '''
+        start_index = 0
+        #for m in re.finditer('[a-zA-Z]\.',chapter_corpus):
+        for m in re.finditer('[a-zA-Z ]\.',chapter_corpus):
+            chapter_tokenized_doc = chapter_corpus[start_index:m.start(0) + 1]
+            
+            doc_text_no_punc = simple_preprocess(chapter_tokenized_doc,deacc=True) 
+            tokenized_text_non_stop_words = [ word for word in doc_text_no_punc \
+                                             if word not in stop_words]
+                    
+            text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
+            tokenized_lemmas = nlp(text_non_stop_words)
+            tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
+                                if token.pos_ in allowed_postags]
+            documents.append(tokenized_lemmas)
+            document_chapters_indexes.append(chapter_index)
+            start_index = m.end(0) + 1'''
+
+
+        #total_corpus_tokenized.append(documents)
+    #total_corpus_tokenized = [ [doc for doc in ch if len(doc) > 0 ] for ch in total_corpus_tokenized]
+    
+    '''Form bigram and trigram'''
+    bigram = Phrases(documents, min_count=5, threshold=50) # higher threshold fewer phrases.
+    #bigram_mod = Phraser(bigram)
+    #documents_bigrams = [bigram_mod[doc] for doc in tokenized_text_non_stop_words] 
+    trigram = Phrases(bigram[documents], threshold=3)
+    trigram_documents = [trigram[bigram[doc]] for doc in documents]
+    
+    '''Insert the documents into chapters'''
+    total_corpus_tokenized = []
+    curr_ch_index = 0
+    chapter_docs = []
+    debug_indexes = []
+    problematic_ch = setdiff1d(range(len(total_corpus)),document_chapters_indexes)
+    for ch_index,doc in zip(document_chapters_indexes,trigram_documents):
+        # if it is the same chapter
+        if curr_ch_index == ch_index:
+            chapter_docs.append(doc)
+        else:
+            # for some reason the documents of this chapter are not considered
+            while ch_index - curr_ch_index > 1:
+                debug_indexes.append(curr_ch_index)
+                total_corpus_tokenized.append([])
+                chapter_docs = []
+                curr_ch_index =curr_ch_index + 1 # ch_index
+            else:
+                # if it is a new chapter
+                # then add the previous to the total pool start a new chapter collection
+                debug_indexes.append(curr_ch_index)
+                total_corpus_tokenized.append(chapter_docs)
+                curr_ch_index = curr_ch_index + 1 # ch_index
+                chapter_docs = [doc]
+    
+    # adding the last chapter 
+    debug_indexes.append(curr_ch_index)
+    total_corpus_tokenized.append(chapter_docs)
+    
+    #total_corpus_tokenized = [[doc for doc in ch if len(doc) > 0 ] for ch in total_corpus_tokenized]
+    total_corpus_tokenized = [[doc for doc in ch if len(doc) > 0 ] for ch in total_corpus_tokenized]
     return total_corpus_tokenized
         
     #    print(documents)
@@ -152,6 +216,28 @@ def find_content_statbook(full_text,font_sizes,main_chapter_keyword = 'Topic'):
                             if p_subsection_numbering.match(full_text[i]) is not None
                             and
                             font_sizes[i] > most_common_font_size]
+    
+    ''' finding titles that should not be there like 0.4'''
+    '''sub_chapter_indexes_ = sub_chapter_indexes[:]
+    for ch_index in range(1,len(sub_chapter_indexes)):
+        curr_section = full_text[sub_chapter_indexes[ch_index]]
+        last_section = full_text[sub_chapter_indexes[ch_index - 1]]
+        
+        curr_section_numbering = [ int(sec) for sec in curr_section.split('.')]
+        last_section_numbering = [ int(sec) for sec in last_section.split('.')]
+        level = min(len(curr_section_numbering),len(last_section_numbering))
+        for l in range(level):
+            
+            # if we change main subject
+            if curr_section_numbering[l] - last_section_numbering[l] == 1:
+                break
+            
+            if abs(curr_section_numbering[l] - last_section_numbering[l]) > 1:
+                sub_chapter_indexes_.pop(ch_index)
+                break
+    sub_chapter_indexes = sub_chapter_indexes_'''
+    
+    
     all_titles_indexes = main_chapter_indexes + sub_chapter_indexes    
     all_titles_indexes.sort()
     
@@ -194,10 +280,12 @@ def find_content_statbook(full_text,font_sizes,main_chapter_keyword = 'Topic'):
     
     # adding the text of the last section
     last_sec_text = ""
-    i = all_titles_indexes[-1] + 1
+    i = all_titles_indexes[-1] + 2
     while i < len(full_text) and font_sizes[i] <= most_common_font_size:
         last_sec_text = last_sec_text + " " + full_text[i]
         i+=1
+    if last_sec_text[-1] != '.':
+        last_sec_text = last_sec_text + "."
     total_corpus.append(last_sec_text)
     
     
