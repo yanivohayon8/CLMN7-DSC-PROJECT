@@ -30,7 +30,7 @@ class CreateBlocks:
     def preprocessing_text(self,raw_data):
         stop_words = stopwords.words('english')
         nlp = spacy.load('en',disable=['parser','ner'])
-        allowed_postags=['NOUN', 'ADJ', 'VERB']
+        allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB']
     
         processed_brth_grp = []
         for brth_grp in raw_data:
@@ -45,6 +45,13 @@ class CreateBlocks:
             tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
                                 if token.pos_ in allowed_postags]
             processed_brth_grp.append(tokenized_lemmas)
+        
+        bigram = Phrases(processed_brth_grp, min_count=5, threshold=30) # higher threshold fewer phrases.
+        #bigram_mod = Phraser(bigram)
+        #documents_bigrams = [bigram_mod[doc] for doc in tokenized_text_non_stop_words] 
+        trigram = Phrases(bigram[processed_brth_grp], threshold=3)
+        processed_brth_grp = [trigram[bigram[doc]] for doc in processed_brth_grp]
+
         
         return processed_brth_grp
         
