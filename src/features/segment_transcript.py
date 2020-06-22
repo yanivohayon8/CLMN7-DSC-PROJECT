@@ -25,6 +25,8 @@ import sys
 from src.models.audio import getSubjSilentRanges
 #from data.collect_text_changes_time import get_time_titles_changed
 
+from functools import reduce
+
 class CreateBlocks:
     
     def preprocessing_text(self,raw_data):
@@ -46,14 +48,43 @@ class CreateBlocks:
                                 if token.pos_ in allowed_postags]
             processed_brth_grp.append(tokenized_lemmas)
         
-        bigram = Phrases(processed_brth_grp, min_count=5, threshold=30) # higher threshold fewer phrases.
+        all_tokenized = reduce(lambda acc,x: acc+x,processed_brth_grp)
+        size =100
+        tokenized_fixed_size = [all_tokenized[i:i+size] for i in range(0,len(all_tokenized) - size,size)]
+        tokenized_fixed_size.append(all_tokenized[-(len(all_tokenized)%size):])
+        
+        #bigram = Phrases(tokenized_fixed_size, min_count=5, threshold=30) # higher threshold fewer phrases.
+        bigram = Phrases(tokenized_fixed_size, min_count=10,threshold=0,scoring='npmi') # higher threshold fewer phrases.
         #bigram_mod = Phraser(bigram)
         #documents_bigrams = [bigram_mod[doc] for doc in tokenized_text_non_stop_words] 
-        trigram = Phrases(bigram[processed_brth_grp], threshold=3)
-        processed_brth_grp = [trigram[bigram[doc]] for doc in processed_brth_grp]
-
+        trigram = Phrases(bigram[tokenized_fixed_size],min_count=7,threshold=0,scoring='npmi')
+        phrases_brth_grp = [trigram[bigram[doc]] for doc in tokenized_fixed_size]
         
-        return processed_brth_grp
+
+        '''Return the corpus to the original breath group structure'''
+        phrases = list(set(reduce(lambda acc,x: acc+x,
+                         [[ph for ph in grp if '_' in ph] for grp in phrases_brth_grp])))
+        brth_grp_prc_sizes = [len(brth_grp) for brth_grp in processed_brth_grp]        
+        flat_phrases_brth_grp = list(reduce(lambda acc,x: acc+x,phrases_brth_grp))
+        org_size_grp = []
+        group_index = 0
+        word_in_group_index = 0
+        curr_group = []
+        for flat_index in range(len(flat_phrases_brth_grp)):
+            word = flat_phrases_brth_grp[flat_index]
+            curr_group.append(word)
+            phrase_size = 1 if word not in phrases else (word.count('_') + 1)
+            word_in_group_index+=phrase_size
+            
+            # if we reached to the end of the breath group
+            if word_in_group_index >= brth_grp_prc_sizes[group_index]:
+                org_size_grp.append(curr_group)
+                curr_group = []
+                word_in_group_index = word_in_group_index - brth_grp_prc_sizes[group_index]
+                group_index+=1
+        
+        
+        return org_size_grp
         
         
     

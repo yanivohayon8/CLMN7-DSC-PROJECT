@@ -23,7 +23,7 @@ transcript_filespath = glob.glob(groundbase_dir + '/transcripts/*.json')
 
 videos_ids = list(map(lambda fl: fl.split('\\')[-1].split('.')[0],glob.glob(docx_path + '/*')))
 
-desired_videos = ['zWg7U0OEAoE']#['7kLHJ-F33GI','RIawrYLVdIw','7snJ1mx1EMQ'] #
+desired_videos = ['zWg7U0OEAoE'] #['RIawrYLVdIw']
 videos_ids = list(filter(lambda x: x in desired_videos,videos_ids))
 
 

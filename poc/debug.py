@@ -81,7 +81,7 @@ n_largest_res = 1
 #filtered_video = ['x5zLaWT5KPs','dkAr9ThdSUU','2mC1uqwEmWQ',
 #                  'MkiUBJcgdUY','Q-HugPvA7GQ','tORLeHHtazM','zWg7U0OEAoE']
 
-filtered_video = ['7kLHJ-F33GI','7snJ1mx1EMQ','RIawrYLVdIw']
+filtered_video =['7kLHJ-F33GI'] #['tORLeHHtazM','zWg7U0OEAoE',,'7snJ1mx1EMQ','RIawrYLVdIw']
 
 best_results = df_results[df_results['video'].isin(filtered_video)].groupby('video')[['video','workflow','params','max_target']].apply(lambda grp: grp.nlargest(n_largest_res,'max_target')).values.tolist()
 

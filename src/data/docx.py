@@ -19,7 +19,7 @@ from numpy import setdiff1d
 
 stop_words = stopwords.words('english')
 nlp = spacy.load('en',disable=['parser','ner'])
-allowed_postags=['NOUN', 'ADJ', 'VERB']
+allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB']
 
 
 
