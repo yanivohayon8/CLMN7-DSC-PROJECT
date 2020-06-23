@@ -15,12 +15,12 @@ from functools import reduce
 from gensim.models.phrases import Phrases, Phraser
 from gensim import corpora
 from numpy import setdiff1d
-
+from nltk.stem import PorterStemmer
 
 stop_words = stopwords.words('english')
 nlp = spacy.load('en',disable=['parser','ner'])
-allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB','ADV']#['NOUN', 'ADJ', 'VERB','PROPN']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','PROPN','ADV']#
-
+allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','ADV']#['NOUN', 'ADJ', 'VERB','PROPN']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','PROPN','ADV']#
+porter = PorterStemmer()
 
 
 def read_docx(doc_path):
@@ -39,7 +39,7 @@ def read_docx(doc_path):
     return full_text,font_sizes
 
 
-def process_docx(total_corpus):
+def process_docx(total_corpus,lemmatizing = "lemma"):
     total_corpus_tokenized =[]
 
     documents = []
@@ -52,11 +52,16 @@ def process_docx(total_corpus):
             doc_text_no_punc = simple_preprocess(sent,deacc=True) 
             tokenized_text_non_stop_words = [ word for word in doc_text_no_punc \
                                              if word not in stop_words]
-                    
-            text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
-            tokenized_lemmas = nlp(text_non_stop_words)
-            tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
-                                if token.pos_ in allowed_postags]
+            
+            
+            if lemmatizing == "stemm":
+                tokenized_lemmas = [porter.stem(w) for w in tokenized_text_non_stop_words]
+            else:
+                text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
+                tokenized_lemmas = nlp(text_non_stop_words)
+                tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
+                                    if token.pos_ in allowed_postags]
+
             documents.append(tokenized_lemmas)
             document_chapters_indexes.append(chapter_index)
             
@@ -130,16 +135,17 @@ def process_docx(total_corpus):
 
 
 
-def find_content(structure_pattern,full_text,font_sizes,main_chapter_keyword = 'Chapter'):
+def find_content(structure_pattern,full_text,font_sizes,
+                 main_chapter_keyword = 'Chapter',lemmatizing = "lemma"):
     if structure_pattern == 'statbook':
-        return find_content_statbook(full_text,font_sizes,main_chapter_keyword)
+        return find_content_statbook(full_text,font_sizes,main_chapter_keyword,lemmatizing)
     if structure_pattern == 'Dsa':
-        return find_content_Dsa(full_text,font_sizes,main_chapter_keyword)
+        return find_content_Dsa(full_text,font_sizes,main_chapter_keyword,lemmatizing)
     raise('No structure pattern %s was identified with function' %(structure_pattern))
 
 
 
-def find_content_Dsa(full_text,font_sizes,main_chapter_keyword = 'Chapter'):    
+def find_content_Dsa(full_text,font_sizes,main_chapter_keyword = 'Chapter',lemmatizing = "lemma"):    
     most_common_font_size = mode(font_sizes)
     topic_titles = []
     main_chapter_titles = []
@@ -181,7 +187,7 @@ def find_content_Dsa(full_text,font_sizes,main_chapter_keyword = 'Chapter'):
     
     # fill empty subssections with random string
      
-    total_corpus = process_docx(total_corpus)
+    total_corpus = process_docx(total_corpus,lemmatizing)
     
     for i in range(len(total_corpus)):
         if len(total_corpus[i]) == 0:
@@ -202,7 +208,7 @@ def find_content_Dsa(full_text,font_sizes,main_chapter_keyword = 'Chapter'):
 
 
 
-def find_content_statbook(full_text,font_sizes,main_chapter_keyword = 'Topic'):
+def find_content_statbook(full_text,font_sizes,main_chapter_keyword = 'Topic',lemmatizing = "lemma"):
     most_common_font_size = mode(font_sizes)
     topic_titles = []
     main_chapter_titles = []
@@ -291,7 +297,7 @@ def find_content_statbook(full_text,font_sizes,main_chapter_keyword = 'Topic'):
     
     # fill empty subssections with random string
      
-    total_corpus = process_docx(total_corpus)
+    total_corpus = process_docx(total_corpus,lemmatizing)
     
     for i in range(len(total_corpus)):
         if len(total_corpus[i]) == 0:

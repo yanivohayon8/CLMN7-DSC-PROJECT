@@ -26,13 +26,15 @@ from src.models.audio import getSubjSilentRanges
 #from data.collect_text_changes_time import get_time_titles_changed
 
 from functools import reduce
+from nltk.stem import PorterStemmer
+porter = PorterStemmer()
 
 class CreateBlocks:
     
-    def preprocessing_text(self,raw_data):
+    def preprocessing_text(self,raw_data,lemmatizing = "lemma"):
         stop_words = stopwords.words('english')
         nlp = spacy.load('en',disable=['parser','ner'])
-        allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB','ADV']#['NOUN', 'ADJ', 'VERB','PROPN']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','PROPN','ADV']
+        allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','ADV']#['NOUN', 'ADJ', 'VERB','PROPN']#['NOUN', 'ADJ', 'VERB']#
     
         processed_brth_grp = []
         for brth_grp in raw_data:
@@ -42,10 +44,19 @@ class CreateBlocks:
             brth_group_text_no_punc = simple_preprocess(' '.join(brth_grp),deacc=True) 
             tokenized_text_non_stop_words = [ word for word in brth_group_text_no_punc \
                                              if word not in stop_words]
-            text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
+            
+            
+            if lemmatizing == "stemm":
+                tokenized_lemmas = [porter.stem(w) for w in tokenized_text_non_stop_words]
+            else:
+                text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
+                tokenized_lemmas = nlp(text_non_stop_words)
+                tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
+                                    if token.pos_ in allowed_postags]
+            '''text_non_stop_words = ' '.join(tokenized_text_non_stop_words)
             tokenized_lemmas = nlp(text_non_stop_words)
             tokenized_lemmas = [token.lemma_ for token in tokenized_lemmas \
-                                if token.pos_ in allowed_postags]
+                                if token.pos_ in allowed_postags]'''
             processed_brth_grp.append(tokenized_lemmas)
         
         all_tokenized = reduce(lambda acc,x: acc+x,processed_brth_grp)
@@ -91,7 +102,7 @@ class CreateBlocks:
     '''
         Divide the text - if window size is not specified, then the breath group remain as they are
     ''' 
-    def __init__(self,transcripts_jsons,video_id="XXXXXX"):
+    def __init__(self,transcripts_jsons,video_id="XXXXXX",lemmatizing = "lemma"):
 
         '''Find processed corpus'''
         #raw_data_tokenized = np.concatenate([brth['text'].split(' ') for brth in transcripts_jsons])
@@ -99,7 +110,7 @@ class CreateBlocks:
         #self.tokenized_corpus = self.preprocessing_text(raw_text)
         
         raw_data_tokenized = [brth['text'].split(' ') for brth in transcripts_jsons]
-        self.tokenized_trgrp_corpus = self.preprocessing_text(raw_data_tokenized)
+        self.tokenized_trgrp_corpus = self.preprocessing_text(raw_data_tokenized,lemmatizing)
         self.tokenized_corpus = np.concatenate(self.tokenized_trgrp_corpus)
         
         '''
