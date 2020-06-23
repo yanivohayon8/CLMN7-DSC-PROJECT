@@ -32,7 +32,7 @@ class CreateBlocks:
     def preprocessing_text(self,raw_data):
         stop_words = stopwords.words('english')
         nlp = spacy.load('en',disable=['parser','ner'])
-        allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB']
+        allowed_postags=['NOUN', 'ADJ', 'VERB','PROPN','ADV']#['NOUN', 'ADJ', 'VERB','ADV']#['NOUN', 'ADJ', 'VERB','PROPN']#['NOUN', 'ADJ', 'VERB']#['NOUN', 'ADJ', 'VERB','PROPN','ADV']
     
         processed_brth_grp = []
         for brth_grp in raw_data:
