@@ -1,21 +1,21 @@
 {
     "sliding_window-tfidf-cosine-median_(2,2)-spectral_clustering":{
-        "window_size": (20,150),
-        "step_size":(10,60),
+        "window_size": (120,170),
+        "step_size":(10,30),
         'sim_thresh':(0.3,0.6),
-        'n_clusters': (12,18)
+        'n_clusters': (23,28)
     },
     'sliding_window-tfidf-cosine-median_(3,3)-spectral_clustering':{
-        "window_size": (20,150),
-        "step_size":(10,60),
+        "window_size": (120,170),
+        "step_size":(10,30),
         'sim_thresh':(0.3,0.6),
-        'n_clusters': (12,18)
+        'n_clusters': (23,28)
     },
     'sliding_window-tfidf-cosine-None-spectral_clustering':{
-        "window_size": (20,150),
-        "step_size":(10,60),
+        "window_size": (120,170),
+        "step_size":(10,30),
         'sim_thresh':(0.3,0.6),
-        'n_clusters': (12,18)
+        'n_clusters': (23,28)
     },
 	"audio-tfidf-cosine-median_(2,2)-spectral_clustering":{
         "silence_threshold": (-30,0),

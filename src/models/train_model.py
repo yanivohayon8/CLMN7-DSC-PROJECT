@@ -56,7 +56,7 @@ class functionsBuilder():
                                 filter_params=self.filter_params,
                                 clustering_params={'algorithm': _pipeline['clustering'],
                                                    'n_clusters':n_clusters},
-                                accurrcy_shift=30
+                                accurrcy_shift=45
                                )
     
         return _f

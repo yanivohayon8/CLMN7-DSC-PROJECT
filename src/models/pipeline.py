@@ -7,6 +7,7 @@ Created on Sat Apr 11 19:04:13 2020
 
 import sys
 sys.path.append('../../')
+import traceback
 
 from src.features.segment_transcript import CreateBlocks
 from src.features.build_vectors import vectorizer
@@ -266,6 +267,7 @@ class pipeline():#,myvectorizer
             #print('time_dividing_results %s ' %(time_dividing_results))
         except Exception as inst:
             print(inst)
+            print(traceback.print_exc())
             if return_value == 'division':
                 return None
             return 0

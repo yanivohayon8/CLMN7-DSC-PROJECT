@@ -45,10 +45,10 @@ class clustering():
         false_positive = 0 
         algo_results = curresults[:]
         
-        #print("The results:")
-        #print(curresults)
-        #print("The ground base:")
-        #print(ground_base)
+        print("The results:")
+        print(curresults)
+        print("The ground base:")
+        print(ground_base)
         
         true_positive_list_debug = []
         #false_negative_list_debug = []
