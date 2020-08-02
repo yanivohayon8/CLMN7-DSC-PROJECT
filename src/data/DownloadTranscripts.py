@@ -12,7 +12,8 @@ class DownloadTranscript():
         transcripts_path = path.join(curr_path.parent.parent.parent, 'data\\raw\\transcripts')
         url_data = urlparse(url)
         query = parse_qs(url_data.query)
-        video_id = query["v"][0]
+        #video_id = query["v"][0]
+        video_id = "MkiUBJcgdUY"
         print ("The video %s ID is %s" % (url,video_id))
         t_path = path.join(transcripts_path,video_id + '.json')
         if(path.exists(t_path)):

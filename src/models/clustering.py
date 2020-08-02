@@ -160,5 +160,5 @@ class clustering():
         #print(clustering_results.labels_)
         
         myresults = clustering.boundery_change(clustering_results.labels_,gap_timestamp)
-        return clustering_results.labels_,myresults
+        return myresults
         
