@@ -24,4 +24,4 @@ class DownloadTranscript():
             transcript = YouTubeTranscriptApi.get_transcript(video_id)
             with open(t_path,'w+') as f:
                 json.dump(transcript,f)
-        return transcript
+        return transcript, video_id

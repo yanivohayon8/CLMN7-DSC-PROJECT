@@ -295,10 +295,13 @@ class pipeline():#,myvectorizer
             myresults = clustering.run_for_classification(similarity_matrix,
                                                         gap_timestamp,
                                                         clustering_params)
-            print(myresults)
+
         except Exception as inst:
             print(inst)
-            return 0
-            
-        return myresults
+            return 0,0
+
+        block_as_topics = block_handler.partion_by_timestamp(myresults)
+        block_as_topics = [list(blk) for blk in block_as_topics]
+
+        return myresults, block_as_topics
     
