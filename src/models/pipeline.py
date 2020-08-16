@@ -261,7 +261,7 @@ class pipeline():#,myvectorizer
                      filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True},
                      clustering_params={'algorithm':'spectral_clustering','n_clusters':13},
                      accurrcy_shift=15):
-        
+
         '''Initializing parameters '''
         w2v_model = None
         recall,precision,tp,fp,fn = 0,0,0,0,0

@@ -22,9 +22,9 @@ import os
 
 def getLabeledDivision(division_time_shifts, division_words):
     # --- read text from document and devided it to hirarchycal sections ---
-    division_time_shifts = [1,56]
+    #division_time_shifts = [1,56]
     print(division_time_shifts)
-    division_words = [{'bla','bla','bla','bla','bla'},{'bla','bla','bla','bla','bla'},{'bla','bla','bla','bla','bla'}]
+    #division_words = [{'bla','bla','bla','bla','bla'},{'bla','bla','bla','bla','bla'},{'bla','bla','bla','bla','bla'}]
     print(division_words)
     videos_division = {'topic_words': division_words, 'topic_shift': division_time_shifts}
     lemmatizing_method = 'lemma'
