@@ -16,6 +16,7 @@ import pandas as pd
 from functools import reduce
 from sklearn.feature_extraction.text import CountVectorizer
 import heapq
+import os
 
 #warnings.filterwarnings("ignore")
 
@@ -27,7 +28,8 @@ def getLabeledDivision(division_time_shifts, division_words):
     print(division_words)
     videos_division = {'topic_words': division_words, 'topic_shift': division_time_shifts}
     lemmatizing_method = 'lemma'
-    doc_path = 'C:/Projects/Final Project/CLMN7-DSC-PROJECT/data/raw/docx/MIT6_042JF10_notes.docx'
+    dirname = os.path.dirname(__file__)
+    doc_path = os.path.join(dirname, '../../data/raw/docx/MIT6_042JF10_notes.docx')
     full_text, font_sizes = read_docx(doc_path)
     paper_content = find_content('MIT6_042JF10_notes', full_text, font_sizes, 'Chapter', lemmatizing=lemmatizing_method)
     main_section_as_one_doc, first_dep_section_as_one_doc, paper_subsec_as_one_doc, titles_by_hierchy_ranges, tl_first_dep_by_hier, tl_first_dep_by_hier_indexes = get_chapter_single_doc(
