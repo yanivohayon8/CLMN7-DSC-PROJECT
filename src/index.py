@@ -3,8 +3,12 @@ from flask import Flask, escape, request, jsonify,make_response
 from src.models.labeling import getLabeledDivision
 from src.models.pipeline import pipeline
 from src.data.DownloadTranscripts import DownloadTranscript
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
+
 
 @app.route('/<string:videoURL>', methods=['GET'])
 def cut(videoURL):
@@ -24,7 +28,7 @@ def cut(videoURL):
     vectorizing_params=None
     similarity_method='cosine'
     filter_params={'filter_type':None,'mask_shape':None,'sim_thresh':0.4,'is_min_thresh':True}
-    clustering_params={'algorithm':'spectral_clustering','n_clusters':13}
+    clustering_params={'algorithm':'spectral_clustering','n_clusters':4}
     accurrcy_shift=15
     
     time_division, topics = pipeline.run_classification(transcripts,slicing_method,silence_threshold,
@@ -34,7 +38,13 @@ def cut(videoURL):
 
     labeldDivision = getLabeledDivision(time_division, topics)
     print(labeldDivision)
-    return jsonify(labeldDivision)
+    response = jsonify(labeldDivision);
+    response.headers["Content-type"] = "application/json"
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers["Access-Control-Expose-Headers"] = 'Access-Control-Allow-Origin'
+    response.headers["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept"
+    response.headers["Access-Control-Allow-Methods"] = "GET"
+    return response
 
 @app.errorhandler(404)
 def not_found(error):
