@@ -92,12 +92,24 @@ def getLabeledDivision(division_time_shifts, division_words):
                                                                   )
         section_to_topic = section_to_topic + topic_matching
 
-    result = list(map(lambda section:
+    sectionsWithStartTimes = list(map(lambda section:
         {'start_time': 0,'lable': section }
         , section_to_topic))
 
-    for index in range(1,len(result)):
-        result[index]['start_time'] = division_time_shifts[index-1]
+
+    for index in range(1,len(sectionsWithStartTimes)):
+        sectionsWithStartTimes[index]['start_time'] = division_time_shifts[index-1]
+
+    lastSectionLabel = ""
+    result=[]
+    for section in sectionsWithStartTimes:
+        print(section)
+        if(section['lable'] == lastSectionLabel):
+            print("found")
+        else:
+            print("not found")
+            lastSectionLabel = section['lable']
+            result.append(section)
 
     return result
 
