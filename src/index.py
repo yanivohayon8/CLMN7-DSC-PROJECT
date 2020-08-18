@@ -10,10 +10,12 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-@app.route('/<string:videoURL>', methods=['GET'])
-def cut(videoURL):
-    # get the parameters from config file
-    transcripts, video_id= DownloadTranscript.get_transcript(videoURL)
+@app.route('/<videoId>', methods=['GET'])
+def cut(videoId):
+    if videoId == 'favicon.ico':
+        return
+    print(videoId)
+    transcripts, video_id= DownloadTranscript.get_transcript(videoId)
     slicing_method='sliding_window'
     window_size=120
     step_size_sd=15

@@ -7,14 +7,13 @@ import ast
 
 class DownloadTranscript():
     @staticmethod
-    def get_transcript(url):
+    def get_transcript(id):
         curr_path = Path(__file__)
         transcripts_path = path.join(curr_path.parent.parent.parent, 'data\\raw\\transcripts')
-        url_data = urlparse(url)
-        query = parse_qs(url_data.query)
-        #video_id = query["v"][0]
-        video_id = "h9wxtqoa1jY"
-        print ("The video %s ID is %s" % (url,video_id))
+
+        video_id = id
+        #video_id = "h9wxtqoa1jY"
+        print ("The video ID is %s" % (video_id))
         t_path = path.join(transcripts_path,video_id + '.json')
         if(path.exists(t_path)):
             with open(t_path,encoding="utf8") as f:
